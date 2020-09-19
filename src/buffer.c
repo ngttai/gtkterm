@@ -65,25 +65,24 @@ void delete_buffer(void)
 //buffer points to location where timestamp will be inserted
 unsigned int insert_timestamp(char *buffer)
 {
-  unsigned int size = 0;
+	unsigned int size = 0;
 
-	if(timestamp_on)
+	if (timestamp_on)
 	{
 		char buf[TIMESTAMP_SIZE];
 		struct timespec ts;
-		int d,h,m,s,x;
+		struct tm _tm;
+		unsigned int nanos;
 		timespec_get(&ts, TIME_UTC);
-		d = (ts.tv_sec / (3600 * 24));
-		h = (ts.tv_sec / 3600) % 24;
-		m = (ts.tv_sec / 60 ) % 60;
-		s = ts.tv_sec % 60;
-		x = ts.tv_nsec / 1000000;
-		snprintf(buf, TIMESTAMP_SIZE - 1, "[%d.%02uh.%02um.%02us.%03u] "
-				, d, h, m, s, x );
+		nanos = ts.tv_nsec / 1000000;
+		_tm = *localtime(&ts.tv_sec);
+		snprintf(buf, TIMESTAMP_SIZE - 1, "[%04u-%02u-%02u %02u:%02u:%02u.%03u] ",
+				 1900 + _tm.tm_year, 1 + _tm.tm_mon, _tm.tm_mday,
+				 _tm.tm_hour, _tm.tm_min, _tm.tm_sec, nanos);
 		strcpy(buffer, buf);
 		size = strlen(buf);
 	}
-  return size;
+	return size;
 }
 
 void put_chars(const char *chars, unsigned int size, gboolean crlf_auto)
